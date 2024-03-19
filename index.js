@@ -27,6 +27,10 @@ app.use((req, res, next) => {
 
 app.use(route)
 
+app.get("/",(req, res) => {
+  res.send("halo world")
+})
+
 
 
 app.listen(port, () => {
