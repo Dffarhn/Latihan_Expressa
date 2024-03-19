@@ -16,7 +16,7 @@ async function sendVerificationEmail(userEmail, verificationToken) {
     from: 'Kahlova',
     to: userEmail,
     subject: 'Email Verification',
-    html: `<p>Please click <a href="http://localhost:3000/verify?token=${verificationToken}">here</a> to verify your email address jancuk.</p>`,
+    html: `<p>Please click <a href="https://latihan-expressa.vercel.app/verify?token=${verificationToken}">here</a> to verify your email address jancuk.</p>`,
   };
 
   try {
