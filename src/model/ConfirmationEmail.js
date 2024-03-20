@@ -1,14 +1,19 @@
+const { configDotenv } = require('dotenv');
 const nodemailer = require('nodemailer');
+configDotenv()
 
 // Create a nodemailer transporter
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
-      user: 'd.raihan2004', // Your Gmail email address
-      pass: 'rpayrriiumwdqeow', // Your Gmail password or an app-specific password
+      user: process.env.SMTP_USER, // Your Gmail email address
+      pass: process.env.SMTP_PASSWORD, // Your Gmail password or an app-specific password
     },
+    connectionTimeout: 10 * 1000, // 10 seconds
+    greetingTimeout: 10 * 1000, // 10 seconds
+    socketTimeout: 10 * 1000, // 10 seconds
   });
 
 async function sendVerificationEmail(userEmail, verificationToken) {

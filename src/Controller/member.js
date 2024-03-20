@@ -35,6 +35,8 @@ const AddMemberController = async (req, res) => {
     const newuser = req.body;
     const verification = v4();
 
+    await sendVerificationEmail(newuser.email, verification);
+    
     const AddUserToDB = await prisma.kahlova_Member.create({
       data: {
         name: newuser.name,
@@ -45,11 +47,9 @@ const AddMemberController = async (req, res) => {
       },
     });
 
-    sendVerificationEmail(newuser.email, verification);
-
     res.status(200).send({ msg: "Member created", data: AddUserToDB });
   } catch (error) {
-    res.status(500).send({ msg: "internal error" });
+    res.status(500).send({ msg: "internal error" , why : error });
   }
 };
 
