@@ -39,6 +39,7 @@ const AddMemberController = async (req, res) => {
       data: {
         name: newuser.name,
         email: newuser.email,
+        password : newuser.password,
         positionid: newuser.position,
         verification_token: verification,
       },
