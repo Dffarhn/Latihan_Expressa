@@ -4,12 +4,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
   // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
   // or you'll have dangling databases from migrations
   directUrl = env("POSTGRES_URL_NON_POOLING")
-  schemas  = ["auth", "public"]
+  schemas   = ["auth", "public"]
 }
 
 model Position {
@@ -36,13 +36,13 @@ model Kahlova_Member {
 }
 
 model Kahlova_Project {
-  id         String           @unique @default(uuid())
-  name       String
-  bio        String
-  categories Project_Categori @relation(fields: [categori], references: [name])
-  categori   String
-  avatar     String[]
-  techmade   String[]
+  id              String           @unique @default(uuid())
+  name            String
+  bio             String
+  categories      Project_Categori @relation(fields: [categori], references: [name])
+  categori        String
+  project_picture String[]
+  techmade        String[]
 
   @@schema("public")
 }
@@ -55,6 +55,14 @@ model Project_Categori {
 }
 
 model images {
+  id   String @unique @default(uuid())
+  data Bytes
+  name String
+
+  @@schema("public")
+}
+
+model Project_Images {
   id   String @unique @default(uuid())
   data Bytes
   name String

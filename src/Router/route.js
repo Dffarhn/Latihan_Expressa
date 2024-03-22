@@ -94,12 +94,12 @@ route.get("/projects", GetAllProjectController);
 route.get("/project/:project_id", GetOneProjectController);
 
 // route.post('/project',upload.array('project',5), AddProjectController)
-route.post("/project", upload.array("project", 5), UploadProjectPicture, AddProjectController);
+route.post("/project", upload.single("project_picture"), UploadProjectPicture, AddProjectController);
 
 route.patch("/project/:project_id", upload.array("projectupdate", 5), UpdateProjectPictureController, UpdateProjectController);
 
 route.delete("/project/:project_id", DeleteProjectController);
-
+const sharp = require('sharp'); 
 
 route.get('/avatar/:id', async (req, res) => {
   const { id } = req.params;
@@ -109,11 +109,13 @@ route.get('/avatar/:id', async (req, res) => {
     return res.status(404).send('Image not found');
   }
 
-  const base64ImageData = convertByteaToBase64(imageData);;
+  const webpImageData = await sharp(Buffer.from(imageData, 'base64'))
+  .webp() // Convert to WebP format
+  .toBuffer();
 
-  // Set appropriate Content-Type header for the image type (e.g., 'image/jpeg', 'image/png', etc.)
-  res.setHeader('Content-Type', 'image/jpeg');
-  res.send(Buffer.from(base64ImageData, 'base64'));
+  // Set appropriate Content-Type header for WebP image
+  res.setHeader('Content-Type', 'image/webp');
+  res.send(webpImageData);
 });
  
   

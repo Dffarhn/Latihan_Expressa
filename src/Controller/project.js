@@ -68,23 +68,26 @@ const AddProjectController = async (req, res) => {
   try {
     const { namaproject, deskripsiproject, kategoriproject, techmade } = req.body;
 
-    const project_picture = req.projectURL;
+    const project_picture = req.avatarfile;
 
-    const newProject = {
-      nama: namaproject,
-      deskripsi: deskripsiproject,
-      kategori: kategoriproject,
-      foto_project: project_picture,
-      tech_made: techmade,
-    };
+    console.log(namaproject,deskripsiproject,kategoriproject,techmade)
 
-    const { data, error } = await supabase.from("kahlova_project").insert(newProject);
 
-    if (error) {
-      throw error;
-    }
 
-    res.status(201).send({ msg: "success create new project", data: data });
+    const addProjectToDB = await prisma.kahlova_Project.create({
+      data:{
+
+      name: namaproject,
+      bio: deskripsiproject,
+      categori: kategoriproject,
+      project_picture: [project_picture],
+      techmade: [techmade],
+        
+
+      }
+    })
+
+    res.status(201).send({ msg: "success create new project", data: addProjectToDB });
   } catch (error) {
     res.status(500).send({ msg: "error creating project" });
   }

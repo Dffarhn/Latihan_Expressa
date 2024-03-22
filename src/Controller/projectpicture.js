@@ -1,42 +1,40 @@
-const { supabase } = require("../../config.js");
+const { prisma } = require("../../config.js");
 const { v4: uuidv4 } = require("uuid");
+
+const sharp = require('sharp'); 
+
 
 
 const UploadProjectPicture = async (req, res, next) => {
     try {
+        if (!req.file) {
+          next();
+        } else {
+          // Convert the uploaded file (Buffer) to bytea data
+          const imageData = req.file.buffer;
 
-        const uuid = uuidv4()
-        req.projectpictures = req.files.map((file, index) => {
-            const picture = {
-                data: file.buffer,
-                filename: `${uuid}/${index}`,
-            };
-            return picture;
-        });
-
-        console.log(req.projectpictures)
-
-        const uploadPromises = req.projectpictures.map(async (picture) => {
-            const { data, error } = await supabase.storage.from('project_picture').upload(picture.filename, picture.data, {
-                contentType: 'image/jpeg',
-            });
-
-            if (error) {
-                throw error;
-            }
-
-            return picture.filename;
-        });
-
-        req.projectURL = await Promise.all(uploadPromises);
-
-        console.log(req.projectURL);
-
-        next();
-    } catch (error) {
-        console.error(`Error uploading project pictures: ${error.message}`);
-        res.status(500).send({ msg: 'Error uploading project pictures' });
-    }
+          const webpImageData = await sharp(imageData)
+          .webp() // Convert to WebP format
+          .toBuffer();
+    
+          // Save the bytea data to the database using Prisma
+          const savedImage = await prisma.project_Images.create({
+            data: {
+              name: req.file.originalname,
+              data: webpImageData,
+            },
+          });
+    
+          req.avatarfile = savedImage.id;
+    
+          next();
+        }
+    
+        // res.status(200).send({ msg: 'Image uploaded successfully', data: savedImage });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+      }
 };
 
 
