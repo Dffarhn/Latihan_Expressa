@@ -14,13 +14,21 @@ const InsertAvatarMemberController = async (req, res, next) => {
         .webp() // Convert to WebP format
         .toBuffer();
 
-      // Save the WebP data to the database using Prisma
-      const savedImage = await prisma.images.create({
-        data: {
-          name: req.file.originalname,
-          data: webpImageData,
+      const memberId = req.params.member_id;
+
+      const memberdata = await prisma.kahlova_Member.findUnique({
+        where: {
+          id: parseInt(memberId, 10),
         },
       });
+
+
+      const savedImage = await prisma.images.upsert({
+        where: { id: memberdata.avatar},
+        update: { data: webpImageData, name: req.file.originalname },
+        create: { name: req.file.originalname,data: webpImageData, },
+      });
+
 
       req.avatarfile = savedImage.id;
 
