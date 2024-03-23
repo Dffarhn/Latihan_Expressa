@@ -4,7 +4,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const { route } = require("./src/Router/route.js");
 
-
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
@@ -20,16 +19,13 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 app.get("/", (req, res) => {
   res.send("halo world");
 });
 
-app.use(checkApiKey)
+app.use(checkApiKey);
 
 app.use(route);
-
 
 app.listen(port, () => {
   console.log(`Listening on port http://localhost:${port}`);

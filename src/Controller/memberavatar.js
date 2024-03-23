@@ -1,5 +1,5 @@
 const { prisma } = require("../../config.js");
-const sharp = require('sharp'); 
+const sharp = require("sharp");
 
 const InsertAvatarMemberController = async (req, res, next) => {
   try {
@@ -22,13 +22,11 @@ const InsertAvatarMemberController = async (req, res, next) => {
         },
       });
 
-
       const savedImage = await prisma.images.upsert({
-        where: { id: memberdata.avatar},
+        where: { id: memberdata.avatar },
         update: { data: webpImageData, name: req.file.originalname },
-        create: { name: req.file.originalname,data: webpImageData, },
+        create: { name: req.file.originalname, data: webpImageData },
       });
-
 
       req.avatarfile = savedImage.id;
 

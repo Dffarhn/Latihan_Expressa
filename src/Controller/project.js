@@ -1,61 +1,60 @@
 const { prisma } = require("../../config.js");
 
 const GetAllProjectController = async (req, res) => {
-    try {
-      const { kategori, sort } = req.query;
-  
-      let query = {
-        include: {
-          // Include any related tables if needed
+  try {
+    const { kategori, sort } = req.query;
+
+    let query = {
+      include: {
+        // Include any related tables if needed
+      },
+    };
+
+    if (kategori) {
+      query = {
+        ...query,
+        where: {
+          categori: kategori, // Filter by category
         },
       };
-  
-      if (kategori) {
+    }
+
+    if (sort) {
+      if (sort === "true") {
         query = {
           ...query,
-          where: {
-            categori: kategori, // Filter by category
+          orderBy: {
+            created_at: "asc", // Sort by created_at in ascending order
+          },
+        };
+      } else {
+        query = {
+          ...query,
+          orderBy: {
+            created_at: "desc", // Sort by created_at in descending order
           },
         };
       }
-  
-      if (sort) {
-        if (sort === "true") {
-          query = {
-            ...query,
-            orderBy: {
-              created_at: "asc", // Sort by created_at in ascending order
-            },
-          };
-        } else {
-          query = {
-            ...query,
-            orderBy: {
-              created_at: "desc", // Sort by created_at in descending order
-            },
-          };
-        }
-      }
-  
-      const allProjects = await prisma.kahlova_Project.findMany(query);
-      console.log(kategori)
-      res.status(200).send({ msg: "Successfully retrieved all projects", data: allProjects });
-    } catch (error) {
-      console.error("Error:", error);
-      res.status(500).send("Internal Server Error");
     }
-  };
-  
+
+    const allProjects = await prisma.kahlova_Project.findMany(query);
+    console.log(kategori);
+    res.status(200).send({ msg: "Successfully retrieved all projects", data: allProjects });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 const GetOneProjectController = async (req, res) => {
   try {
     const idproject = req.params.project_id;
-    
+
     const AProject = await prisma.kahlova_Project.findUnique({
-        where:{
-            id: idproject
-        }
-    })
+      where: {
+        id: idproject,
+      },
+    });
 
     res.status(200).send({ msg: "berhasil ambil data satu project", data: AProject });
   } catch (error) {
@@ -70,22 +69,17 @@ const AddProjectController = async (req, res) => {
 
     const project_picture = req.avatarfile;
 
-    console.log(namaproject,deskripsiproject,kategoriproject,techmade)
-
-
+    console.log(namaproject, deskripsiproject, kategoriproject, techmade);
 
     const addProjectToDB = await prisma.kahlova_Project.create({
-      data:{
-
-      name: namaproject,
-      bio: deskripsiproject,
-      categori: kategoriproject,
-      project_picture: [project_picture],
-      techmade: [techmade],
-        
-
-      }
-    })
+      data: {
+        name: namaproject,
+        bio: deskripsiproject,
+        categori: kategoriproject,
+        project_picture: [project_picture],
+        techmade: [techmade],
+      },
+    });
 
     res.status(201).send({ msg: "success create new project", data: addProjectToDB });
   } catch (error) {

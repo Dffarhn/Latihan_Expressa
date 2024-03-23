@@ -36,12 +36,12 @@ const AddMemberController = async (req, res) => {
     const verification = v4();
 
     await sendVerificationEmail(newuser.email, verification);
-    
+
     const AddUserToDB = await prisma.kahlova_Member.create({
       data: {
         name: newuser.name,
         email: newuser.email,
-        password : newuser.password,
+        password: newuser.password,
         positionid: newuser.position,
         verification_token: verification,
       },
@@ -49,7 +49,7 @@ const AddMemberController = async (req, res) => {
 
     res.status(200).send({ msg: "Member created", data: AddUserToDB });
   } catch (error) {
-    res.status(500).send({ msg: "internal error" , why : error });
+    res.status(500).send({ msg: "internal error", why: error });
   }
 };
 
@@ -58,13 +58,13 @@ const UpdateMemberController = async (req, res) => {
     const memberId = req.params.member_id;
     const { newname, newposition } = req.body;
 
-    const avatarfile = req.avatarfile
+    const avatarfile = req.avatarfile;
 
     // Persiapkan data untuk update
     const updateData = {
       ...(newname && { name: newname }), // Jika newname tidak kosong, tambahkan field name ke updateData
       ...(newposition && { position: parseInt(newposition, 10) }), // Jika newposition tidak kosong, tambahkan field position ke updateData
-      ...(avatarfile && { avatar: avatarfile,  })
+      ...(avatarfile && { avatar: avatarfile }),
     };
 
     // Lakukan update menggunakan Prisma

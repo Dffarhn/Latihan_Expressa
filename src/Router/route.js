@@ -12,7 +12,7 @@ const { SignupMemberController } = require("../Controller/sign_member.js");
 const cookieParser = require("cookie-parser");
 
 const { VerifyMemberController } = require("../Controller/verifyMember.js");
-const { getImageData, convertByteaToBase64 } = require("../model/getImageData.js");
+const { getImageData, convertByteaToBase64, getProjectImageData } = require("../model/getImageData.js");
 
 const route = Router();
 // Set up multer storage
@@ -36,34 +36,34 @@ route.get("/member/:member_id", GetMemberController);
 route.patch("/member/:member_id", upload.single("avatar"), InsertAvatarMemberController, UpdateMemberController);
 route.post("/member", AddMemberController);
 
-route.get("/verify",VerifyMemberController);
+route.get("/verify", VerifyMemberController);
 
 //masalah sign_in dan sign_out
 
 route.post("/signin_member", async (req, res) => {
-    try {
-      const { email, password } = req.body;
-  
-      // Cari anggota dengan email dan password yang cocok
-      const signInUser = await prisma.kahlova_Member.findUnique({
-        where: {
-          email: email,
-          password: password,
-        },
-      });
-  
-      // Jika user berhasil ditemukan, kirim respons sukses
-      if (signInUser) {
-        res.cookie('user', signInUser.id, { maxAge: 9000, httpOnly: true });
-        res.status(200).send({ msg: "Success login", data: signInUser });
-      } else {
-        res.status(401).send({ msg: "Invalid email or password" });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send({ msg: "Internal Server Error" });
+  try {
+    const { email, password } = req.body;
+
+    // Cari anggota dengan email dan password yang cocok
+    const signInUser = await prisma.kahlova_Member.findUnique({
+      where: {
+        email: email,
+        password: password,
+      },
+    });
+
+    // Jika user berhasil ditemukan, kirim respons sukses
+    if (signInUser) {
+      res.cookie("user", signInUser.id, { maxAge: 9000, httpOnly: true });
+      res.status(200).send({ msg: "Success login", data: signInUser });
+    } else {
+      res.status(401).send({ msg: "Invalid email or password" });
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ msg: "Internal Server Error" });
+  }
+});
 
 route.get("/signout-member", async (req, res) => {
   try {
@@ -99,26 +99,39 @@ route.post("/project", upload.single("project_picture"), UploadProjectPicture, A
 route.patch("/project/:project_id", upload.array("projectupdate", 5), UpdateProjectPictureController, UpdateProjectController);
 
 route.delete("/project/:project_id", DeleteProjectController);
-const sharp = require('sharp'); 
+const sharp = require("sharp");
 
-route.get('/avatar/:id', async (req, res) => {
+route.get("/avatar/:id", async (req, res) => {
   const { id } = req.params;
   const imageData = await getImageData(id);
 
   if (!imageData) {
-    return res.status(404).send('Image not found');
+    return res.status(404).send("Image not found");
   }
 
-  const webpImageData = await sharp(Buffer.from(imageData, 'base64'))
-  .webp() // Convert to WebP format
-  .toBuffer();
+  const webpImageData = await sharp(Buffer.from(imageData, "base64"))
+    .webp() // Convert to WebP format
+    .toBuffer();
 
   // Set appropriate Content-Type header for WebP image
-  res.setHeader('Content-Type', 'image/webp');
+  res.setHeader("Content-Type", "image/webp");
   res.send(webpImageData);
 });
- 
-  
-  
+route.get("/project_picture/:id", async (req, res) => {
+  const { id } = req.params;
+  const imageData = await getProjectImageData(id);
+
+  if (!imageData) {
+    return res.status(404).send("Image not found");
+  }
+
+  const webpImageData = await sharp(Buffer.from(imageData, "base64"))
+    .webp() // Convert to WebP format
+    .toBuffer();
+
+  // Set appropriate Content-Type header for WebP image
+  res.setHeader("Content-Type", "image/webp");
+  res.send(webpImageData);
+});
 
 module.exports = { route };
