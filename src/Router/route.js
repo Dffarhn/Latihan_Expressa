@@ -94,7 +94,7 @@ route.get("/projects", GetAllProjectController);
 route.get("/project/:project_id", GetOneProjectController);
 
 // route.post('/project',upload.array('project',5), AddProjectController)
-route.post("/project", upload.single("project_picture"), UploadProjectPicture, AddProjectController);
+route.post("/project", upload.array("project_picture",5), UploadProjectPicture, AddProjectController);
 
 route.patch("/project/:project_id", upload.array("projectupdate", 5), UpdateProjectPictureController, UpdateProjectController);
 

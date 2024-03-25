@@ -67,7 +67,7 @@ const AddProjectController = async (req, res) => {
   try {
     const { namaproject, deskripsiproject, kategoriproject, techmade } = req.body;
 
-    const project_picture = req.avatarfile;
+    const project_picture = req.avatarfiles;
 
     console.log(namaproject, deskripsiproject, kategoriproject, techmade);
 
@@ -76,8 +76,8 @@ const AddProjectController = async (req, res) => {
         name: namaproject,
         bio: deskripsiproject,
         categori: kategoriproject,
-        project_picture: [project_picture],
-        techmade: [techmade],
+        project_picture: {set : project_picture},
+        techmade: {set : techmade},
       },
     });
 

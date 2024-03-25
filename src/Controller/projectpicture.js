@@ -4,31 +4,38 @@ const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
 
 const UploadProjectPicture = async (req, res, next) => {
+  console.log("UploadProjectmasuk");
   try {
-    if (!req.file) {
+    if (!req.files || req.files.length === 0) {
+      console.log("UploadProject ksong")
       next();
     } else {
-      // Convert the uploaded file (Buffer) to bytea data
-      const imageData = req.file.buffer;
+      const uploadPromises = req.files.map(async (file) => {
+        const imageData = file.buffer;
 
-      const webpImageData = await sharp(imageData)
-        .webp() // Convert to WebP format
-        .toBuffer();
+        const webpImageData = await sharp(imageData)
+          .webp() // Convert to WebP format
+          .toBuffer();
 
-      // Save the bytea data to the database using Prisma
-      const savedImage = await prisma.project_Images.create({
-        data: {
-          name: req.file.originalname,
-          data: webpImageData,
-        },
+        const savedImage = await prisma.project_Images.create({
+          data: {
+            name: file.originalname,
+            data: webpImageData,
+          },
+        });
+
+        return savedImage.id;
       });
 
-      req.avatarfile = savedImage.id;
+      // Wait for all uploads to complete
+      const uploadedImageIds = await Promise.all(uploadPromises);
+
+      req.avatarfiles = uploadedImageIds;
+
+      console.log(req.avatarfiles);
 
       next();
     }
-
-    // res.status(200).send({ msg: 'Image uploaded successfully', data: savedImage });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
