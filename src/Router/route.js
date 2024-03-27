@@ -8,7 +8,7 @@ const { AddProjectController, GetAllProjectController, GetOneProjectController, 
 const { GetAllMemberController, GetMemberController, UpdateMemberController, AddMemberController } = require("../Controller/member.js");
 const { InsertAvatarMemberController } = require("../Controller/memberavatar.js");
 const { UploadProjectPicture, UpdateProjectPictureController } = require("../Controller/projectpicture.js");
-const { SignupMemberController } = require("../Controller/sign_member.js");
+
 const cookieParser = require("cookie-parser");
 
 const { VerifyMemberController } = require("../Controller/verifyMember.js");
@@ -96,7 +96,7 @@ route.get("/project/:project_id", GetOneProjectController);
 // route.post('/project',upload.array('project',5), AddProjectController)
 route.post("/project", upload.array("project_picture",5), UploadProjectPicture, AddProjectController);
 
-route.patch("/project/:project_id", upload.array("projectupdate", 5), UpdateProjectPictureController, UpdateProjectController);
+route.patch("/project/:project_id", upload.array("project_picture", 5), UpdateProjectPictureController, UpdateProjectController);
 
 route.delete("/project/:project_id", DeleteProjectController);
 const sharp = require("sharp");

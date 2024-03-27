@@ -44,71 +44,83 @@ const UploadProjectPicture = async (req, res, next) => {
 
 const UpdateProjectPictureController = async (req, res, next) => {
   try {
-    const { id, past_picture } = req.body;
+    
+    const id = req.params.project_id
 
-    const { data } = await supabase.from("kahlova_project").select("foto_project").eq("id", id);
+    console.log(id)
+    const {keep_picture } = req.body; // array yang didalam nya terdapat id foto yang masih di pertahankan
+    
+    const AProject = await prisma.kahlova_Project.findUnique({
+      where: {
+        id: id,
+      },
+    });
 
-    const uuidFolderStorage = data[0].foto_project[0].substring(0, data[0].foto_project[0].indexOf("/"));
+    const PictureProjectLama = AProject.project_picture
 
-    // Retrieve past pictures
-    const pastPictures = past_picture
-      ? await Promise.all(
-          past_picture.map(async (element) => {
-            const { data, error } = await supabase.storage.from("project_picture").download(element);
-
-            const arrayBuffer = await data.arrayBuffer();
-            const uint8Array = new Uint8Array(arrayBuffer);
-            return Buffer.from(uint8Array);
-          })
-        )
-      : [];
-
-    // Combine past pictures and new files
-    const data_update_foto = pastPictures.concat(req.files.map((file) => file.buffer));
-
-    // Upload all images in data_update_foto
-    req.update_picture = await Promise.all(
-      data_update_foto.map(async (buffer, index) => {
-        const filename = `${uuidFolderStorage}/${index}`;
-        const { data: uploaddata, error: errorupload } = await supabase.storage.from("project_picture").upload(filename, buffer, {
-          contentType: "image/jpeg",
-          upsert: true,
-        });
-
-        if (errorupload) {
-          throw errorupload;
+    // console.log(PictureProjectLama)
+    // console.log(keep_picture)
+    // bandingkan pictureproject lama dan keep_picture lalu simpan dalam sebuah array PictureProjectLama yang tidak di keep Picture nya lalu array tersebut hapus dari prisma database image
+    const pictureToDelete = [];
+    PictureProjectLama.map(id_picture =>{
+      keep_picture.map(keep_picture =>{
+        if (id_picture == keep_picture) {
+          //hapus picture pada picture project lama
+          
+        }else{
+          pictureToDelete.push(id_picture)
         }
-
-        console.log(`File ${index} uploaded successfully:`, uploaddata);
-        return filename;
       })
-    );
+    })
+    // console.log(picturesToKeep)
+    // // Menghapus gambar yang tidak di keep dari database
+    for (const pictureId of pictureToDelete) {
 
-    // if(req.update_picture.length <= supabase.storage.from('project_kahlova').copy.length){
-    //     //hapus file storage yang melebihi nya
-    // }
-
-    const { data: datafotonow, error: errorfotonow } = await supabase.storage.from("project_picture").list(`${uuidFolderStorage}`);
-
-    console.log(datafotonow.length);
-
-    let databarulength = req.update_picture.length;
-
-    while (databarulength < datafotonow.length) {
-      const filenamedeleted = `${uuidFolderStorage}/${databarulength}`;
-      const { error: removeError } = await supabase.storage.from("project_picture").remove(filenamedeleted);
-
-      if (removeError) {
-        // Handle error during file removal (log, throw, etc.)
-        console.error(`Error removing file ${uuidFolderStorage}/${databarulength}:`, removeError);
-        break; // Exit the loop in case of an error
-      }
-
-      console.log(`File ${uuidFolderStorage}/${databarulength} removed successfully.`);
-      databarulength++;
+      console.log(pictureId)
+      // await prisma.kahlova_Picture.deleteUnique({
+      //   where: { id: pictureId},
+      // });
     }
 
-    next();
+    if (!req.files || req.files.length === 0) {
+      console.log("UploadProjectbaru ksong")
+      next();
+    } else {
+      const uploadPromises = req.files.map(async (file) => {
+        const imageData = file.buffer;
+  
+        const webpImageData = await sharp(imageData)
+          .webp() // Convert to WebP format
+          .toBuffer();
+
+        const savedImage = await prisma.project_Images.create({
+          data: {
+            name: file.originalname,
+            data: webpImageData,
+          },
+        });
+
+        return savedImage.id;
+      });
+
+      // Wait for all uploads to complete
+      const uploadedImageIds = await Promise.all(uploadPromises);
+
+      keep_picture.forEach(element => {
+        console.log(keep_picture)
+        console.log(element)
+        uploadedImageIds.push(element)
+        
+      });
+
+      req.avatarfiles = uploadedImageIds;
+
+      console.log(req.avatarfiles);
+      next();
+
+    }
+
+  
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

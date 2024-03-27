@@ -92,7 +92,7 @@ const UpdateProjectController = async (req, res) => {
     const id = req.params.project_id;
 
     const { newname, newdeskripsi, newkategori, newtechmade } = req.body;
-    const newproject_picture = req.update_picture;
+    const newproject_picture = req.avatarfiles;
 
     console.log(newproject_picture);
 
