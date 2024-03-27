@@ -105,6 +105,7 @@ const UpdateProjectPictureController = async (req, res, next) => {
   
           return savedImage.id;
         });
+
   
         // Wait for all uploads to complete
         const uploadedImageIds = await Promise.all(uploadPromises);
@@ -122,8 +123,6 @@ const UpdateProjectPictureController = async (req, res, next) => {
         next();
   
       }
-    
-    
 
   
   } catch (error) {
