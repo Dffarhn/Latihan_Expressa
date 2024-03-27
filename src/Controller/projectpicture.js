@@ -116,6 +116,8 @@ const UpdateProjectPictureController = async (req, res, next) => {
       req.avatarfiles = uploadedImageIds;
 
       console.log(req.avatarfiles);
+
+      console.log("ini dari dapa brance baru")
       next();
 
     }
