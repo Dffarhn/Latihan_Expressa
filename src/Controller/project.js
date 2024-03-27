@@ -96,21 +96,23 @@ const UpdateProjectController = async (req, res) => {
 
     console.log(newproject_picture);
 
-    const updateproject = {
-      ...(newname !== undefined && { name: newname }),
-      ...(newdeskripsi !== undefined && { deskripsi: newdeskripsi }),
-      ...(newkategori !== undefined && { kategori: newkategori }),
-      ...(newproject_picture !== undefined && { foto_project: newproject_picture }),
-      ...(newtechmade !== undefined && { foto_project: newtechmade }),
+    const updateData = {
+      ...(newname && { name: newname }), // Jika newname tidak kosong, tambahkan field name ke updateData
+      ...(newdeskripsi && { bio: newdeskripsi }), // Jika newdeskripsi tidak kosong, tambahkan field position ke updateData
+      ...(newkategori && { categori: newkategori }),
+      ...(newproject_picture&&{ project_picture: { set : newproject_picture}}),
+      ...(newtechmade&&{ techmade: { set : newtechmade}})
     };
 
-    const { data, error } = await supabase.from("kahlova_project").update(updateproject).eq("id", id);
+   const UpdateProject = await prisma.kahlova_Project.update({
+    where:{
+      id: id
+    },
+    data:updateData
+   })
 
-    if (error) {
-      throw error;
-    }
 
-    res.status(201).send({ msg: "success update", data: data });
+    res.status(200).send({ msg: "success update", data: UpdateProject });
   } catch (error) {
     res.status(500).send({ msg: "error updating" + error });
   }
