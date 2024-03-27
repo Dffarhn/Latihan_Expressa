@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("halo world");
+  res.send("halo aliya");
 });
 
 app.use(checkApiKey);
