@@ -1,14 +1,10 @@
-const { createClient } = require('redis');
+const { createClient } = require("@vercel/kv");
+const dotenv = require("dotenv");
+dotenv.config();
 
+const client = createClient({
+  url: process.env.KV_REST_API_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 
-const client = createClient();
-
-client.on('error',(err) => {
-
-    console.error(err);
-})
-
-client.connect();
-
-
-module.exports = {client};
+module.exports = { client };
