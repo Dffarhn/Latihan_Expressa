@@ -1,12 +1,16 @@
 const { prisma } = require("../../config.js");
+const { client } = require("../../configredis.js");
+const { DEFAULT_EXPIRED } = require("../Middleware/Redis/configuration_redist.js");
 const { sendVerificationEmail } = require("../model/ConfirmationEmail.js");
 
 const { v4 } = require("uuid");
 const GetAllMemberController = async (req, res) => {
   try {
     console.log("Loading");
+    const key = req.originalUrl;
 
     const alldata = await prisma.kahlova_Member.findMany();
+    await client.setEx(key,DEFAULT_EXPIRED,JSON.stringify(alldata))
 
     res.status(200).send({ msg: "success mengambil data member ", data: alldata });
   } catch (error) {

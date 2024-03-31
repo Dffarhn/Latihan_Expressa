@@ -13,6 +13,8 @@ const cookieParser = require("cookie-parser");
 
 const { VerifyMemberController } = require("../Controller/verifyMember.js");
 const { getImageData, convertByteaToBase64, getProjectImageData } = require("../model/getImageData.js");
+const sharp = require("sharp");
+const { redisCacheMiddleware } = require("../Middleware/Redis/redis.js");
 
 const route = Router();
 // Set up multer storage
@@ -30,7 +32,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 //all about member
-route.get("/members", GetAllMemberController);
+route.get("/members",redisCacheMiddleware, GetAllMemberController);
 route.get("/member/:member_id", GetMemberController);
 // route.post('/upload-member-avatar', checkAuthSession, upload.single('avatar'),InsertAvatarMemberController)
 route.patch("/member/:member_id", upload.single("avatar"), InsertAvatarMemberController, UpdateMemberController);
@@ -99,7 +101,6 @@ route.post("/project", upload.array("project_picture",5), UploadProjectPicture, 
 route.patch("/project/:project_id", upload.array("project_picture", 5), UpdateProjectPictureController, UpdateProjectController);
 
 route.delete("/project/:project_id", DeleteProjectController);
-const sharp = require("sharp");
 
 route.get("/avatar/:id", async (req, res) => {
   const { id } = req.params;
